@@ -14,3 +14,118 @@ html[data-theme="dark"] .teacher-name,html[data-theme="dark"] .equipment-name,ht
 @media(max-width:900px){.inner-page-heading{margin-bottom:19px}.compact-metrics .metric-card{height:108px}.report-cards{gap:10px}}
 @media(max-width:650px){.inner-page-heading{align-items:flex-start;gap:12px}.inner-page-heading h1{font-size:22px}.inner-page-heading>.primary-button{margin-top:19px;max-width:160px;font-size:8px}.compact-metrics .metric-card{height:112px}.data-panel-heading{align-items:flex-start;flex-direction:column}.data-tools{width:100%}.data-tools .search-field{flex:1}.data-tools .search-field input{width:100%}.data-tools .filter-button{font-size:8px;width:auto;padding:0 8px}.report-cards{grid-template-columns:1fr}.report-chart{height:175px;gap:7px;padding-inline:4px}.report-bar-column small{font-size:7px}.table-footer{gap:10px}}
 html,body{max-width:100%;overflow-x:hidden}.app-shell,.main-content,.page-content{min-width:0;max-width:100%}
+
+/* Mais legibilidade e alvos de clique evidentes */
+body{font-size:16px}
+.nav-item{height:48px;font-size:14px;gap:13px}
+.nav-item svg{width:20px;height:20px}
+.nav-label{font-size:10px;letter-spacing:1.15px}
+.workspace strong,.profile-copy strong{font-size:13px}
+.workspace small,.profile-copy small{font-size:11px}
+.brand-name{font-size:20px}
+.icon-button{width:42px;height:42px;border-color:#d7dbe7;color:#505a72}
+.icon-button svg{width:20px;height:20px}
+.primary-button{min-height:44px;height:44px;padding:0 17px;font-size:13px;gap:9px}
+.primary-button svg{width:19px;height:19px}
+.filter-button,.select-button,.secondary-button{min-height:40px;height:40px;padding:0 13px;font-size:12px;font-weight:700;color:#404963;border-color:#d5d9e5;background:var(--surface)}
+.search-field{height:40px;padding:0 11px;gap:9px;border-color:#d5d9e5}
+.search-field svg{width:17px;height:17px}
+.search-field input{width:180px;font-size:12px}
+.search-field input::placeholder{color:#737b91;opacity:1}
+.date-label,.breadcrumb{font-size:12px}
+.eyebrow,.section-kicker{font-size:10px;letter-spacing:1.1px}
+h1{font-size:30px}
+.subtitle{font-size:14px;line-height:1.5}
+.metric-label{font-size:12px}
+.metric-value-row>strong{font-size:32px}
+.metric-foot,.metric-context{font-size:11px}
+.panel-heading h2{font-size:16px}
+.text-link{font-size:12px;font-weight:700}
+.heading-count{font-size:11px;min-width:21px;height:21px}
+.attention-item{min-height:58px;padding:10px 11px}
+.attention-copy strong{font-size:11px}
+.attention-copy span,.attention-time{font-size:10px}
+.table-panel,.loans-panel{font-size:12px}
+th{height:42px;font-size:10px;letter-spacing:.55px}
+td{height:60px;font-size:12px}
+.teacher-name,.equipment-name{font-size:12px}
+.teacher-role,.equipment-code,.table-muted{font-size:10px}
+.teacher-avatar{width:34px;height:34px;font-size:10px}
+.device-icon{width:32px;height:32px}
+.device-icon svg{width:17px;height:17px}
+.status-pill{font-size:10px;padding:6px 9px}
+.row-action{width:36px;height:36px;border:1px solid #d5d9e5;border-radius:9px;background:var(--surface);color:var(--blue);font-size:20px;font-weight:800;line-height:1}
+.row-action:hover{background:var(--blue-soft);border-color:#9c9cff}
+.table-footer{height:52px;font-size:11px}
+.table-footer .text-link{font-size:11px}
+.help-card strong{font-size:12px}
+.help-card p,.help-link{font-size:11px}
+.metric-card .metric-icon{width:36px;height:36px}
+.metric-card .metric-icon svg{width:19px;height:19px}
+.modal h2{font-size:22px}
+.modal-description{font-size:13px}
+.form-field label{font-size:12px}
+.form-field input,.form-field select{height:44px;font-size:13px}
+.secondary-button{font-size:12px}
+.toast{font-size:13px;padding:13px 16px}
+.page-footer{font-size:10px}
+.inventory-overview{display:flex;justify-content:space-between;align-items:center;gap:20px;margin:0 0 16px;padding:19px 21px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:12px;box-shadow:var(--shadow)}
+.inventory-overview>div:first-child{display:grid;gap:6px}
+.inventory-overview>div:first-child strong{font:700 18px Inter,sans-serif;color:var(--ink)}
+.inventory-status-summary{display:flex;align-items:center;gap:17px;color:#4c536a;font-size:12px;font-weight:700}
+.inventory-status-summary span{display:flex;align-items:center;gap:7px;white-space:nowrap}
+.inventory-dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.available-dot{background:#15865f}
+.in-use-dot{background:#435ed4}
+.service-dot{background:#bd7819}
+.nav-item.active{background:#e7e8ff;color:#0000cd}
+html[data-theme="dark"]{--muted:#b0b6ca}
+html[data-theme="dark"] .nav-item{color:#c0c5d5}
+html[data-theme="dark"] .nav-item.active{background:#30315d;color:#c1c1ff}
+html[data-theme="dark"] .icon-button,html[data-theme="dark"] .filter-button,html[data-theme="dark"] .select-button,html[data-theme="dark"] .secondary-button,html[data-theme="dark"] .row-action{color:#d5d8e8;border-color:#484c63}
+html[data-theme="dark"] .search-field{border-color:#484c63;color:#c2c7d9}
+html[data-theme="dark"] .search-field input::placeholder{color:#aeb5ca}
+html[data-theme="dark"] th,html[data-theme="dark"] .teacher-role,html[data-theme="dark"] .equipment-code,html[data-theme="dark"] .table-muted{color:#b0b6ca}
+html[data-theme="dark"] .inventory-status-summary{color:#d5d8e8}
+html[data-theme="dark"] .nav-count{background:#33374b;color:#d2d5e2}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #6262ff;outline-offset:2px}
+@media(max-width:650px){
+  .nav-item{height:50px;font-size:14px}
+  .icon-button{width:42px;height:42px}
+  .welcome-row{align-items:center}
+  h1{font-size:25px}
+  .subtitle{font-size:13px}
+  .metric-label{font-size:11px}
+  .metric-foot,.metric-context{font-size:10px}
+  .panel-heading h2{font-size:15px}
+  .attention-copy strong{font-size:11px}
+  .attention-copy span,.attention-time{font-size:10px}
+  .filter-button,.select-button{font-size:11px}
+  .inventory-overview{align-items:flex-start;flex-direction:column;gap:13px;padding:16px}
+  .inventory-status-summary{flex-wrap:wrap;gap:10px 15px;font-size:11px}
+  .table-footer{font-size:10px}
+}
+@media(max-width:650px){
+  .inner-page-heading h1{font-size:26px}
+  .data-tools .filter-button{flex:0 0 100px;min-width:100px;justify-content:center;padding:0 8px}
+  .metrics-grid:not(.compact-metrics) .metric-card{height:auto;min-height:145px}
+  .compact-metrics .metric-card{height:auto;min-height:128px}
+  .table-scroll{overflow:visible}
+  .table-scroll table{width:100%;min-width:0;white-space:normal}
+  .table-scroll thead{display:none}
+  .table-scroll tbody{display:grid;gap:10px;padding:10px}
+  .table-scroll tbody tr:not(.empty-row){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:center;padding:8px;border:1px solid var(--line);border-radius:11px;background:var(--surface)}
+  .table-scroll tbody tr:not(.empty-row) td{display:block;min-width:0;height:auto;padding:8px!important;border:0;text-align:left!important;white-space:normal;overflow-wrap:anywhere;font-size:12px}
+  .table-scroll tbody tr:not(.empty-row) td::before{content:attr(data-label);display:block;margin-bottom:5px;color:#737b91;font-size:10px;font-weight:700;letter-spacing:.45px;text-transform:uppercase}
+  .table-scroll tbody tr:not(.empty-row) td:first-child{grid-column:1/-1}
+  .table-scroll tbody tr:not(.empty-row) td:last-child{grid-column:1/-1;display:flex;justify-content:flex-end;align-items:center;padding-top:4px!important}
+  .table-scroll tbody tr:not(.empty-row) td:last-child::before{margin-right:auto;margin-bottom:0}
+  .table-scroll .empty-row{display:block;padding:10px}
+  .table-scroll .empty-row td{display:block;height:auto;text-align:center!important}
+}
+@media(max-width:380px){
+  .metrics-grid:not(.compact-metrics) .metric-card{min-height:150px}
+  .inventory-status-summary{font-size:10px}
+  .primary-button{padding:0 12px;font-size:12px}
+  .filter-button{max-width:140px;white-space:nowrap}
+}
