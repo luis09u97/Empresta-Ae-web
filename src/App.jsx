@@ -11,10 +11,13 @@ function App() {
   const [message, setMessage] = useState('')
   const [messageType, setMessageType] = useState('')
   const [authenticated, setAuthenticated] = useState(false)
-  const [adminName, setAdminName] = useState('')
+
+  const [userName, setUserName] = useState('')
+  const [userRole, setUserRole] = useState('')
 
   const [dashboardLoading, setDashboardLoading] = useState(false)
   const [dashboardError, setDashboardError] = useState('')
+
   const [dashboardStats, setDashboardStats] = useState({
     professores: 0,
     equipamentos: 0,
@@ -22,7 +25,7 @@ function App() {
     manutencao: 0
   })
 
-  // CARREGAR DADOS DO PAINEL
+  // CARREGAR INDICADORES DA GESTÃO
   async function loadDashboardData() {
     setDashboardLoading(true)
     setDashboardError('')
@@ -84,7 +87,7 @@ function App() {
     }
   }
 
-  // LOGIN
+  // LOGIN ÚNICO PARA TODOS OS PERFIS
   async function handleLogin(e) {
     e.preventDefault()
 
@@ -95,7 +98,7 @@ function App() {
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: email.trim(),
         password
       })
 
@@ -103,7 +106,7 @@ function App() {
 
       const userId = data.user.id
 
-      setLoadingStep('Verificando permissões de acesso...')
+      setLoadingStep('Verificando seu perfil de acesso...')
 
       const [usuarioResult, perfilResult] = await Promise.all([
         supabase
@@ -122,38 +125,58 @@ function App() {
       if (perfilResult.error) throw perfilResult.error
 
       const usuario = usuarioResult.data
-      const perfisUsuario = perfilResult.data
+      const perfisUsuario = perfilResult.data || []
 
       if (!usuario || !usuario.ativo) {
-        await supabase.auth.signOut()
         throw new Error(
-          'Seu usuário está inativo ou não foi cadastrado corretamente.'
+          'Usuário inativo ou não cadastrado corretamente.'
         )
       }
 
-      const possuiGestao = perfisUsuario?.some(
-        item => item.perfis?.nome_perfil === 'Gestão'
+      if (perfisUsuario.length === 0) {
+        throw new Error(
+          'Sua conta ainda não possui um perfil de acesso vinculado.'
+        )
+      }
+
+      const nomesPerfis = perfisUsuario
+        .map(item => item.perfis?.nome_perfil)
+        .filter(Boolean)
+
+      const perfisPermitidos = [
+        'Gestão',
+        'Professor FGB',
+        'Professor Técnico',
+        'PAEET',
+        'Suporte Técnico'
+      ]
+
+      const perfilEncontrado = nomesPerfis.find(
+        perfil => perfisPermitidos.includes(perfil)
       )
 
-      if (!possuiGestao) {
-        await supabase.auth.signOut()
+      if (!perfilEncontrado) {
         throw new Error(
-          'Acesso negado. Esta área é exclusiva da Gestão escolar.'
+          'Seu perfil não possui permissão para acessar o sistema.'
         )
       }
 
-      setAdminName(usuario.nome_completo || email)
+      setUserName(usuario.nome_completo || email)
+      setUserRole(perfilEncontrado)
+      setAuthenticated(true)
       setMessageType('success')
       setMessage('Login realizado com sucesso!')
 
-      setAuthenticated(true)
-
-      // Carregar indicadores do painel
-      loadDashboardData()
+      if (perfilEncontrado === 'Gestão') {
+        loadDashboardData()
+      }
 
     } catch (error) {
+      await supabase.auth.signOut()
+
       setMessageType('error')
       setMessage(error.message || 'Não foi possível realizar o login.')
+
     } finally {
       setLoading(false)
       setLoadingStep('')
@@ -174,9 +197,12 @@ function App() {
     setMessageType('')
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin
-      })
+      const { error } = await supabase.auth.resetPasswordForEmail(
+        email.trim(),
+        {
+          redirectTo: window.location.origin
+        }
+      )
 
       if (error) throw error
 
@@ -212,13 +238,46 @@ function App() {
     setAuthenticated(false)
     setEmail('')
     setPassword('')
+    setUserName('')
+    setUserRole('')
     setMessage('')
     setMessageType('')
-    setAdminName('')
+    setDashboardError('')
   }
 
-  // PAINEL ADMINISTRATIVO
+  // PAINEL DE ACORDO COM O PERFIL
   if (authenticated) {
+    const isGestao = userRole === 'Gestão'
+    const isSuporte = userRole === 'Suporte Técnico'
+
+    const menu = isGestao
+      ? [
+          'Início',
+          'Professores',
+          'Equipamentos',
+          'Empréstimos',
+          'Defeitos',
+          'Auditoria',
+          'Configurações'
+        ]
+      : isSuporte
+        ? [
+            'Início',
+            'Equipamentos',
+            'Defeitos',
+            'Manutenção',
+            'Configurações'
+          ]
+        : [
+            'Início',
+            'Solicitar empréstimo',
+            'Devolver equipamento',
+            'Meus empréstimos',
+            'Histórico',
+            'Problemas',
+            'Manual'
+          ]
+
     return (
       <main className="dashboard-page">
 
@@ -226,9 +285,8 @@ function App() {
           <h1>Emprestaê Jovem.</h1>
 
           <div>
-            <span>Olá, {adminName}</span>
-
-            <button onClick={handleLogout}>
+            <span>Olá, {userName}</span>
+            <button onClick={handleLogout} disabled={loading}>
               Sair
             </button>
           </div>
@@ -239,92 +297,126 @@ function App() {
           <aside className="dashboard-sidebar">
             <h3>MENU PRINCIPAL</h3>
 
-            <button>Início</button>
-            <button>Professores</button>
-            <button>Equipamentos</button>
-            <button>Empréstimos</button>
-            <button>Defeitos</button>
-            <button>Auditoria</button>
-            <button>Configurações</button>
+            {menu.map(item => (
+              <button key={item}>
+                {item}
+              </button>
+            ))}
           </aside>
 
           <section className="dashboard-content">
 
             <div className="dashboard-title">
               <div>
-                <h2>Visão geral</h2>
+                <h2>
+                  {isGestao
+                    ? 'Visão geral'
+                    : isSuporte
+                      ? 'Painel de suporte'
+                      : 'Painel do professor'}
+                </h2>
+
                 <p>
-                  Bem-vindo ao painel administrativo do Emprestaê Jovem.
+                  Bem-vindo ao Emprestaê Jovem.
+                </p>
+
+                <p>
+                  Perfil de acesso: <strong>{userRole}</strong>
                 </p>
               </div>
 
-              <button
-                className="refresh-button"
-                onClick={loadDashboardData}
-                disabled={dashboardLoading}
-              >
-                {dashboardLoading ? 'Atualizando...' : '↻ Atualizar'}
-              </button>
+              {isGestao && (
+                <button
+                  className="refresh-button"
+                  onClick={loadDashboardData}
+                  disabled={dashboardLoading}
+                >
+                  {dashboardLoading ? 'Atualizando...' : '↻ Atualizar'}
+                </button>
+              )}
             </div>
 
-            {dashboardError && (
-              <div className="dashboard-error" role="alert">
-                ⚠ {dashboardError}
+            {isGestao && (
+              <>
+                {dashboardError && (
+                  <div className="dashboard-error" role="alert">
+                    ⚠ {dashboardError}
+                  </div>
+                )}
+
+                <div className="dashboard-cards">
+
+                  <article>
+                    <span>Professores cadastrados</span>
+                    <strong>
+                      {dashboardLoading
+                        ? '...'
+                        : dashboardStats.professores}
+                    </strong>
+                  </article>
+
+                  <article>
+                    <span>Equipamentos cadastrados</span>
+                    <strong>
+                      {dashboardLoading
+                        ? '...'
+                        : dashboardStats.equipamentos}
+                    </strong>
+                  </article>
+
+                  <article>
+                    <span>Empréstimos ativos</span>
+                    <strong>
+                      {dashboardLoading
+                        ? '...'
+                        : dashboardStats.emprestimos}
+                    </strong>
+                  </article>
+
+                  <article>
+                    <span>Equipamentos em manutenção</span>
+                    <strong>
+                      {dashboardLoading
+                        ? '...'
+                        : dashboardStats.manutencao}
+                    </strong>
+                  </article>
+
+                </div>
+              </>
+            )}
+
+            {isSuporte && (
+              <div className="dashboard-activity">
+                <h3>Suporte Técnico</h3>
+                <p>
+                  Área destinada ao acompanhamento técnico dos equipamentos
+                  e das ocorrências do sistema.
+                </p>
               </div>
             )}
 
-            <div className="dashboard-cards">
+            {!isGestao && !isSuporte && (
+              <div className="dashboard-activity">
+                <h3>Área do professor</h3>
+                <p>
+                  Aqui você poderá consultar seus empréstimos,
+                  solicitar equipamentos e registrar problemas.
+                </p>
+              </div>
+            )}
 
-              <article>
-                <span>Professores cadastrados</span>
-                <strong>
-                  {dashboardLoading ? (
-                    <span className="number-loading"></span>
-                  ) : dashboardStats.professores}
-                </strong>
-              </article>
-
-              <article>
-                <span>Equipamentos cadastrados</span>
-                <strong>
-                  {dashboardLoading ? (
-                    <span className="number-loading"></span>
-                  ) : dashboardStats.equipamentos}
-                </strong>
-              </article>
-
-              <article>
-                <span>Empréstimos ativos</span>
-                <strong>
-                  {dashboardLoading ? (
-                    <span className="number-loading"></span>
-                  ) : dashboardStats.emprestimos}
-                </strong>
-              </article>
-
-              <article>
-                <span>Equipamentos em manutenção</span>
-                <strong>
-                  {dashboardLoading ? (
-                    <span className="number-loading"></span>
-                  ) : dashboardStats.manutencao}
-                </strong>
-              </article>
-
-            </div>
-
-            <div className="dashboard-activity">
-              <h3>Atividades recentes</h3>
-
-              <p>
-                Em breve, as movimentações do sistema aparecerão aqui.
-              </p>
-            </div>
+            {isGestao && (
+              <div className="dashboard-activity">
+                <h3>Atividades recentes</h3>
+                <p>
+                  Em breve, as movimentações do sistema aparecerão aqui.
+                </p>
+              </div>
+            )}
 
           </section>
-
         </div>
-
       </main>
     )
   }
@@ -366,24 +458,24 @@ function App() {
             <h2>Bem-vindo!</h2>
 
             <p className="form-subtitle">
-              Entre com sua conta para acessar o painel.
+              Entre com sua conta para acessar o sistema.
             </p>
 
             <div className="access-type">
               <span>♛</span>
-              <strong>Gestão escolar</strong>
+              <strong>Acesso ao Emprestaê Jovem</strong>
             </div>
 
             <form onSubmit={handleLogin}>
 
-              <label htmlFor="email">E-mail da Gestão</label>
+              <label htmlFor="email">E-mail</label>
 
               <input
                 id="email"
                 type="email"
                 placeholder="Digite seu e-mail"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 disabled={loading}
                 required
               />
@@ -395,7 +487,7 @@ function App() {
                 type="password"
                 placeholder="Digite sua senha"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={e => setPassword(e.target.value)}
                 disabled={loading}
                 required
               />
@@ -403,7 +495,7 @@ function App() {
               <div className="forgot-password">
                 <a
                   href="#recuperar"
-                  onClick={(e) => {
+                  onClick={e => {
                     e.preventDefault()
                     if (!loading) handlePasswordRecovery()
                   }}
@@ -446,13 +538,11 @@ function App() {
             )}
 
             <p className="security-text">
-              <span>🔒</span> Acesso exclusivo para a Gestão escolar.
+              <span>🔒</span> Acesso protegido por perfil de usuário.
             </p>
 
           </div>
-
         </div>
-
       </section>
 
       <footer>

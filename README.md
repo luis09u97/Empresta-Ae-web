@@ -1,23 +1,16 @@
-# Empresta Aê
+# React + Vite
 
-Painel web para a administração de equipamentos escolares. A experiência é focada na gestão de inventário, empréstimos e manutenção; o aplicativo de professores não faz parte deste escopo.
+This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
-## Tecnologias
+Currently, two official plugins are available:
 
-- HTML semântico, CSS e JavaScript puro
-- Aplicação estática, sem build, dependências ou backend
-- Dados demonstrativos guardados no navegador
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-## Como abrir
+## React Compiler
 
-Sirva esta pasta com qualquer servidor HTTP estático e acesse o endereço local informado pelo servidor. Por exemplo, com Python disponível:
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-```sh
-python -m http.server 4173
-```
+## Expanding the Oxlint configuration
 
-Depois abra `http://localhost:4173`. O servidor é necessário para carregar os módulos JavaScript do navegador.
-
-## Escopo da demonstração
-
-O painel administrativo apresenta indicadores de disponibilidade, empréstimos recentes, itens que precisam de atenção e acesso ao inventário. Os dados são locais e demonstrativos; autenticação, sincronização entre dispositivos e armazenamento compartilhado exigem um backend.
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
