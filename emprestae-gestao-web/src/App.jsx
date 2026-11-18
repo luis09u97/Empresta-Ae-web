@@ -1,7 +1,113 @@
 
+import { useState } from 'react'
+import { supabase } from './supabaseClient'
 import './App.css'
 
 function App() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [loadingStep, setLoadingStep] = useState('')
+  const [message, setMessage] = useState('')
+  const [messageType, setMessageType] = useState('')
+
+  async function handleLogin(e) {
+    e.preventDefault()
+
+    setLoading(true)
+    setLoadingStep('Autenticando sua conta...')
+    setMessage('')
+    setMessageType('')
+
+    try {
+      // 1. Autenticação
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      })
+
+      if (error) throw error
+
+      const userId = data.user.id
+
+      // 2. Verificações simultâneas
+      setLoadingStep('Verificando permissões de acesso...')
+
+      const [usuarioResult, perfilResult] = await Promise.all([
+        supabase
+          .from('usuarios')
+          .select('ativo')
+          .eq('id_usuario', userId)
+          .maybeSingle(),
+
+        supabase
+          .from('usuario_perfil')
+          .select('perfis(nome_perfil)')
+          .eq('id_usuario', userId)
+      ])
+
+      if (usuarioResult.error) throw usuarioResult.error
+      if (perfilResult.error) throw perfilResult.error
+
+      const usuario = usuarioResult.data
+      const perfisUsuario = perfilResult.data
+
+      if (!usuario || !usuario.ativo) {
+        await supabase.auth.signOut()
+        throw new Error('Seu usuário está inativo ou não foi cadastrado corretamente.')
+      }
+
+      const possuiGestao = perfisUsuario?.some(
+        item => item.perfis?.nome_perfil === 'Gestão'
+      )
+
+      if (!possuiGestao) {
+        await supabase.auth.signOut()
+        throw new Error('Acesso negado. Esta área é exclusiva da Gestão escolar.')
+      }
+
+      setMessageType('success')
+      setMessage('Login realizado com sucesso! Bem-vindo ao Emprestaê Jovem.')
+      
+    } catch (error) {
+      setMessageType('error')
+      setMessage(error.message || 'Não foi possível realizar o login.')
+    } finally {
+      setLoading(false)
+      setLoadingStep('')
+    }
+  }
+
+  async function handlePasswordRecovery() {
+    if (!email) {
+      setMessageType('error')
+      setMessage('Digite seu e-mail para receber o link de recuperação.')
+      return
+    }
+
+    setLoading(true)
+    setLoadingStep('Enviando solicitação...')
+    setMessage('')
+    setMessageType('')
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin
+      })
+
+      if (error) throw error
+
+      setMessageType('success')
+      setMessage('Se o e-mail estiver cadastrado, você receberá as instruções de recuperação.')
+    } catch (error) {
+      setMessageType('error')
+      setMessage(error.message)
+    } finally {
+      setLoading(false)
+      setLoadingStep('')
+    }
+  }
+
   return (
     <main className="page">
       <section className="login-container">
@@ -40,12 +146,15 @@ function App() {
               <strong>Gestão escolar</strong>
             </div>
 
-            <form onSubmit={(e) => e.preventDefault()}>
+            <form onSubmit={handleLogin}>
               <label htmlFor="email">E-mail da Gestão</label>
               <input
                 id="email"
                 type="email"
                 placeholder="Digite seu e-mail"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={loading}
                 required
               />
 
@@ -54,17 +163,55 @@ function App() {
                 id="password"
                 type="password"
                 placeholder="Digite sua senha"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={loading}
                 required
               />
 
               <div className="forgot-password">
-                <a href="#recuperar">Esqueceu sua senha?</a>
+                <a
+                  href="#recuperar"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    if (!loading) handlePasswordRecovery()
+                  }}
+                >
+                  Esqueceu sua senha?
+                </a>
               </div>
 
-              <button type="submit">
-                Entrar no sistema <span>→</span>
+              <button type="submit" disabled={loading}>
+                {loading ? (
+                  <>
+                    <span className="button-spinner"></span>
+                    Verificando...
+                  </>
+                ) : (
+                  <>Entrar no sistema <span>→</span></>
+                )}
               </button>
             </form>
+
+            {loading && (
+              <div className="login-status loading-status">
+                <span className="status-spinner"></span>
+                <span>{loadingStep}</span>
+              </div>
+            )}
+
+            {!loading && message && (
+              <div
+                className={`login-status ${messageType}-status`}
+                role="status"
+                aria-live="polite"
+              >
+                <span className="status-icon">
+                  {messageType === 'success' ? '✓' : '⚠'}
+                </span>
+                <span>{message}</span>
+              </div>
+            )}
 
             <p className="security-text">
               <span>🔒</span> Acesso exclusivo para a Gestão escolar.
