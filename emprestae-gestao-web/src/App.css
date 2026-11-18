@@ -589,3 +589,75 @@ button:disabled {
     padding: 20px;
   }
 }
+
+
+/* INDICADORES DO PAINEL */
+
+.dashboard-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.dashboard-title > div > p {
+  color: #718096;
+  margin-top: 8px;
+}
+
+.refresh-button {
+  background: #0755a5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 11px 17px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.refresh-button:hover {
+  background: #063d78;
+}
+
+.refresh-button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.number-loading {
+  display: inline-block;
+  width: 42px;
+  height: 27px;
+  border-radius: 5px;
+  background: linear-gradient(
+    90deg,
+    #e5edf5 25%,
+    #f5f9fc 50%,
+    #e5edf5 75%
+  );
+  background-size: 200% 100%;
+  animation: numberShimmer 1.2s infinite;
+}
+
+@keyframes numberShimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.dashboard-error {
+  background: #fff0f0;
+  color: #c0392b;
+  padding: 14px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+@media (max-width: 700px) {
+  .dashboard-title {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
